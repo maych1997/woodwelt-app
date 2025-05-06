@@ -10,7 +10,6 @@ const SearchGrid =({details}) => {
   return (
     <SafeAreaView style={{flex: 1}}>
       <FlatGrid
-        // onScroll={onScroll}
         itemDimension={130}
         data={details?.nodes}
         renderItem={(item)=>{

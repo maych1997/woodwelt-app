@@ -22,7 +22,7 @@ const RelatedList = ({details}) => {
         showsHorizontalScrollIndicator={false}
         horizontal
         data={details?.nodes}
-        renderItem={item => {
+        renderItem={(item) => {
           return (
             <View
               style={{flex: 1, padding: 10, width: 230, alignItems: 'center'}}>

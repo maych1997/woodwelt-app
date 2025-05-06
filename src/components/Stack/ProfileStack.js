@@ -12,6 +12,7 @@ import {API_AUTH_URL, API_LOGOUT_URL} from '../../../utils/baseUrls';
 import {useDispatch, useSelector} from 'react-redux';
 import {setAuthToken} from '../../../redux/Slice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import {useQuery} from '@apollo/client';
 import {GET_PROFILE_DETAILS} from '../../../Graphql/query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,6 +35,7 @@ const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [load, setLoad] = useState(null);
   const [errors, setErrors] = useState({});
+  const [showPassword,setShowPassword]=useState(false);
 
   async function getToken(username, password) {
     let newErrors = {};
@@ -67,7 +69,9 @@ const LoginScreen = ({ navigation }) => {
       }
       console.log(data);
       dispatch(setAuthToken(data?.token));
-      AsyncStorage.setItem('authToken', data?.token);
+      AsyncStorage.setItem('authToken', 'Bearer '+data?.token);
+      AsyncStorage.setItem('basicAuthUserName', username);
+      AsyncStorage.setItem('basicAuthPassword', password);
       setLoad(false);
       return data;
     } catch (error) {
@@ -92,14 +96,19 @@ const LoginScreen = ({ navigation }) => {
       />
       {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
+      <View style={{width:'100%',alignItems:'center',display:'flex',justifyContent:'center',marginBottom:10}}>
       {/* Password Input */}
       <TextInput
         placeholder="Password"
-        style={[styles.input, errors.password && styles.errorInput]}
-        secureTextEntry
+        style={[styles.input, errors.password && styles.errorInput,{marginBottom:0}]}
+        secureTextEntry={showPassword}
         value={password}
         onChangeText={setPassword}
       />
+      <TouchableOpacity onPress={()=>{setShowPassword(!showPassword)}} style={{position:'absolute',right:10}}>
+        <Entypo color={'#ccc'} size={20} name={!showPassword?'eye':'eye-with-line'}></Entypo>
+      </TouchableOpacity>
+      </View>
       {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
       {/* Login Button */}
@@ -199,7 +208,7 @@ const RegisterScreen = ({ navigation }) => {
       }
       console.log(data);
       dispatch(setAuthToken(data?.token));
-      AsyncStorage.setItem('authToken', data?.token);
+      AsyncStorage.setItem('authToken', 'Bearer '+data?.token);
       setLoad(false);
       return data;
     } catch (error) {
@@ -389,10 +398,10 @@ const Dashboard = ({navigation}) => {
               <Text style={styles.walletAmount}>$140.00</Text>
               <Text style={styles.walletLabel}>Wallet</Text>
             </View>
-            <View style={styles.walletItem}>
+            <TouchableOpacity onPress={()=>{navigation.navigate('Orders',{orderDetails:profileData?.customer?.orders?.nodes});}} style={styles.walletItem}>
               <Text style={styles.walletAmount}>{profileData?.customer?.orders?.nodes?.length}</Text>
               <Text style={styles.walletLabel}>Orders</Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* Menu Options */}

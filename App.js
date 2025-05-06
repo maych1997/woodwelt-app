@@ -9,25 +9,42 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 
 // Define the GraphQL API endpoint
 const httpLink = createHttpLink({
-  uri: 'https://woodwelt.eu/graphql',
+  uri: 'https://woodwelt.eu/graphql', // Replace with your actual GraphQL endpoint
 });
 
-// Middleware to add Authorization header
+// Step 2: Set up middleware to add Authorization header
 const authLink = setContext(async (_, { headers }) => {
-  const token = await AsyncStorage.getItem('authToken'); // Fetch token from AsyncStorage
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : '',
-    },
-  };
+  try {
+    const token = await AsyncStorage.getItem('authToken'); // Retrieve the token from storage
+
+    // Optional: Debug log (remove in production)
+    if (__DEV__) {
+      console.log('Auth Token:', token);
+    }
+
+    return {
+      headers: {
+        ...headers,
+        Authorization: token ? `${token}` : '', // Use Bearer token format
+      },
+    };
+  } catch (error) {
+    console.error('Error retrieving auth token:', error);
+    return {
+      headers: {
+        ...headers,
+        authorization: '',
+      },
+    };
+  }
 });
 
-// Create Apollo Client with authentication
+// Step 3: Combine authLink and httpLink and initialize ApolloClient
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  link: authLink.concat(httpLink), // Combines both links
+  cache: new InMemoryCache(),      // Use in-memory cache
 });
+
 
 const App = () => {
   return (

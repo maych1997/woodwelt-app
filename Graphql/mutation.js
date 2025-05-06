@@ -244,3 +244,27 @@ export const UPDATE_CUSTOMER_SHIPPING = gql`
     }
   }
 `;
+
+
+export const CREATE_ORDER=gql`
+mutation CreateOrder(
+  $billing: CustomerAddressInput!
+  $shipping: CustomerAddressInput!
+  $paymentMethod: String!  
+  $isPaid: Boolean!
+) {
+  checkout(input: {
+    billing: $billing
+    shipping: $shipping
+    paymentMethod: $paymentMethod
+    isPaid:$isPaid
+  }) {
+    order {
+      id
+      orderNumber
+      status
+      total
+    }
+  }
+}
+`

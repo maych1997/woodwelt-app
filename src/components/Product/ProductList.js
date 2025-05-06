@@ -23,13 +23,13 @@ const ProductList = ({details}) => {
         showsHorizontalScrollIndicator={false}
         horizontal
         data={details?.nodes}
-        renderItem={item => {
+        renderItem={(item) => {
           // console.log(item);
           return (
             <View
               style={{flex: 1, padding: 10, width: 230, alignItems: 'center'}}>
               <TouchableOpacity
-                style={{height: 250, borderRadius: 20}}
+                style={{height: 150, borderRadius: 20}}
                 onPress={() => {
                   navigation.push('ProductDetails', {productDetails: item});
                 }}>
