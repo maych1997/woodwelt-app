@@ -1,5 +1,11 @@
 import React from 'react';
-import {ActivityIndicator, Image, Text, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {useSelector} from 'react-redux';
 import useCart from '../../../hooks/useCart';
 
@@ -13,7 +19,7 @@ const ProductItem = ({item, navigation}) => {
         onPress={() => {
           navigation.push('ProductDetails', {productDetails: item});
         }}
-        style={{height: 250, borderRadius: 20}}>
+        style={{height: 150, borderRadius: 20}}>
         <Image
           style={{
             resizeMode: 'cover',
@@ -21,7 +27,7 @@ const ProductItem = ({item, navigation}) => {
             width: 185,
             borderRadius: 20,
           }}
-          source={{uri: item?.item?.image?.link}}
+          source={{uri: item.item.image?.link}}
         />
 
         {item?.item?.onSale === true && (

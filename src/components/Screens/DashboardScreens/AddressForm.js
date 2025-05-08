@@ -38,50 +38,50 @@ const AddressForm = ({navigation,route}) => {
   const {updateCustomerBilling,updateCustomerShipping}=useAuthentication();
 
   useEffect(()=>{
-    console.log(route.params.shipping);
-    if(route.params.addressType=='Shipping'){
+    console.log(route?.params?.addressType);
+    if(route?.params?.addressType=='Shipping'){
       const filteredCountry = countryCodes.filter(
-        (item) => item.code === route.params.shipping.country
+        (item) => item?.code === route?.params?.shipping?.country
       );
       setCountry(filteredCountry[0]);
       setForm({
-        firstName:route.params.shipping.firstName,
-        lastName:route.params.shipping.lastName,
-        email:route.params.shipping.email,
-        country:filteredCountry[0].name['en'],
-        streetAddress:route.params.shipping.address1,
-        apartment:route.params.shipping.address2,
-        zipCode:route.params.shipping.postcode,
-        city:route.params.shipping.city,
-        stateCounty:route.params.shipping.state,
-        phone:route.params.shipping.phone
+        firstName:route?.params?.shipping?.firstName,
+        lastName:route?.params?.shipping?.lastName,
+        email:route?.params?.shipping?.email,
+        country:filteredCountry[0]?.name['en'],
+        streetAddress:route?.params?.shipping?.address1,
+        apartment:route?.params?.shipping?.address2,
+        zipCode:route?.params?.shipping?.postcode,
+        city:route?.params?.shipping?.city,
+        stateCounty:route?.params?.shipping?.state,
+        phone:route?.params?.shipping?.phone
       })
     }else{
-      const filteredCountry = countryCodes.filter(
-        (item) => item.code === route.params.billing.country
+      const filteredCountry = countryCodes?.filter(
+        (item) => item.code === route?.params?.billing?.country
       );
       setCountry(filteredCountry[0]);
       setForm({
-        firstName:route.params.billing.firstName,
-        lastName:route.params.billing.lastName,
-        email:route.params.billing.email,
-        country:filteredCountry[0].name['en'],
-        streetAddress:route.params.billing.address1,
-        apartment:route.params.billing.address2,
-        zipCode:route.params.billing.postcode,
-        city:route.params.billing.city,
-        stateCounty:route.params.billing.state,
-        phone:route.params.billing.phone
+        firstName:route?.params?.billing?.firstName,
+        lastName:route?.params?.billing.lastName,
+        email:route?.params?.billing.email,
+        country:filteredCountry[0]?.name['en'],
+        streetAddress:route?.params?.billing?.address1,
+        apartment:route?.params?.billing?.address2,
+        zipCode:route?.params?.billing?.postcode,
+        city:route?.params?.billing?.city,
+        stateCounty:route?.params?.billing.state,
+        phone:route?.params?.billing.phone
       })
     }
-  },[route.params])
+  },[route?.params])
   const validateForm = () => {
     setLoad(true);
     let newErrors = {};
 
     if (!form.firstName) newErrors.firstName = 'First name is required';
     if (!form.lastName) newErrors.lastName = 'Last name is required';
-    if (!form.country) newErrors.country = 'Country is required';
+    if (!country || country==undefined) newErrors.country = 'Country is required';
     if (!form.streetAddress)
       newErrors.streetAddress = 'Street address is required';
     if (!form.zipCode) newErrors.zipCode = 'ZIP code is required';
@@ -91,9 +91,9 @@ const AddressForm = ({navigation,route}) => {
     }
 
     setErrors(newErrors);
-
+    console.log('Country::::::',form.country)
     if (Object.keys(newErrors).length === 0) {
-      if(route.params.addressType=='Shipping'){
+      if(route?.params?.addressType=='Shipping'){
         updateCustomerShipping(form.firstName,form.lastName,form.phone,form.zipCode,form.streetAddress,form.apartment,form.stateCounty,form.city,country?.code)
         .then((result)=>{
           if(result!=undefined || result!=null){
@@ -136,7 +136,7 @@ const AddressForm = ({navigation,route}) => {
       </TouchableOpacity>
 
       {/* Header */}
-      <Text style={styles.header}>Edit {route.params.addressType=='Shipping'?'Shipping':'Billing'} Address</Text>
+      <Text style={styles.header}>Edit {route?.params?.addressType=='Shipping'?'Shipping':'Billing'} Address</Text>
 
       <ScrollView contentContainerStyle={styles.container}>
         {renderInput('First Name', 'firstName', true)}
@@ -164,11 +164,11 @@ const AddressForm = ({navigation,route}) => {
   function renderInput(label, field, required = true) {
     return (
       <>
-      {route.params.addressType=='Shipping' && field=='email'?<></>:        <Text style={styles.label}>
+      {route?.params?.addressType=='Shipping' && field=='email'?<></>:        <Text style={styles.label}>
           {label} {required && <Text style={{color: baseColor}}>*</Text>}
         </Text>
 }
-        {route.params.addressType=='Shipping' && field=='email'?<></>:field!='country'? <TextInput
+        {route?.params?.addressType=='Shipping' && field=='email'?<></>:field!='country'? <TextInput
           key={field}
           style={[styles.input, errors[field] && styles.errorInput]}
           onChangeText={text => handleInputChange(field, text)}

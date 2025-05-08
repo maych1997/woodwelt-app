@@ -47,7 +47,7 @@ const OrderItem = ({order,navigation}) => (
           orderDetails: order,
         });
       }}
-      style={{padding: 10, width: '100%'}}>
+      style={{padding: 10, width: '100%',marginBottom:10}}>
       <Text variant="labelMedium" style={{color: 'gray'}}>
         {order.date}
       </Text>

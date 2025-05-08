@@ -11,16 +11,31 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {GET_PAYMENT_GATEWAYS} from '../../../../Graphql/query';
+import {GET_CART, GET_PAYMENT_GATEWAYS} from '../../../../Graphql/query';
 import {useQuery} from '@apollo/client';
 import {Image} from 'react-native-animatable';
 import {useStripe} from '@stripe/stripe-react-native';
+import useCheckout from '../../../../hooks/useCheckout';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useSelector} from 'react-redux';
+import {API_ORDER} from '../../../../utils/baseUrls';
 const baseColor = '#FA6E49';
 
-const MyComponent = ({navigation}) => {
+const PlaceOrder = props => {
   const stripe = useStripe();
-  const [load,setLoad]=useState(false);
+  const [load, setLoad] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
+  const [isPaid,setPaid]=useState(false);
+  const {placeOrder} = useCheckout();
+
+  const {
+    data: dataCart,
+    error: errorCart,
+    loading: loadCart,
+  } = useQuery(GET_CART, {
+    pollInterval: 100,
+  });
+
   const {
     data: dataPayment,
     error: errorPayment,
@@ -48,42 +63,61 @@ const MyComponent = ({navigation}) => {
     console.log(selectedValue);
     setLoad(true);
     try {
-      const response = await fetch('https://woodwelt-app-backend.onrender.com/pay', {
+      const response = await fetch('https://woodwelt-app-backend.onrender.com', {
         method: 'POST',
-        body: JSON.stringify({selectedValue}),
+        body: JSON.stringify({selectedValue:selectedValue,
+          amount:dataCart?.cart?.total?.replace(/&nbsp;/g, '').replace("€", "").replace(",", "."),
+        }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
       const data = await response.json();
-      setLoad(false);
-      if (!response.ok) return Alert.alert(data.message);
+      if (!response.ok) {
+        setLoad(false);
+        return Alert.alert(data.message);
+      }
       const clientSecret = data.clientSecret;
       const initSheet = await stripe.initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
         returnURL: 'woodwelt://payment-return', // 👈 Add this line
       });
-      if (initSheet.error) return Alert.alert(initSheet.error.message);
+      if (initSheet.error) {
+        setLoad(false);
+        return Alert.alert(initSheet.error.message);
+      }
       const presentSheet = await stripe.presentPaymentSheet({
         clientSecret,
       });
-      if (presentSheet.error) return Alert.alert(presentSheet.error.message);
-      Alert.alert('Payment Completed, Thank You!');
+      if (presentSheet.error) {
+        setLoad(false);
+        return Alert.alert(presentSheet.error.message);
+      }
+      placeAnOrder();
     } catch (error) {
       setLoad(false);
       console.log(error);
       Alert.alert('Something went wrong, Try again later!');
     }
   };
+  const placeAnOrder = () => {
+    const billing = props.profileData?.customer.billing;
+    const shipping = props.profileData?.customer.shipping;
+    const {__typename: __billingType, ...cleanBilling} = billing;
+    const {__typename: __shippingType, ...cleanShipping} = shipping;
+    placeOrder(
+      props.checkbox == true ? cleanShipping : cleanBilling,
+      cleanShipping,
+      selectedValue?.id,
+      isPaid
+    );
+    setLoad(false);
+    Alert.alert('Payment Completed, Thank You!');
+  };
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}>
-        <Icon name="arrow-back-ios" size={25} />
-      </TouchableOpacity>
       <Text style={styles.header}>Select Payment Method</Text>
-      <ScrollView style={styles.radioContainer}>
+      <View style={styles.radioContainer}>
         {dataPayment?.paymentGateways?.nodes?.map(option => {
           return (
             <View style={{display: 'flex', flexDirection: 'row'}}>
@@ -197,10 +231,10 @@ const MyComponent = ({navigation}) => {
           {load == true ? (
             <ActivityIndicator animating={load} color={'#fff'} size={'small'} />
           ) : (
-            <Text style={styles.buttonText}>Save</Text>
+            <Text style={styles.buttonText}>Place Order</Text>
           )}
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -215,7 +249,7 @@ const styles = StyleSheet.create({
   radioContainer: {
     marginTop: 20,
     padding: 10,
-    paddingBottom:30
+    paddingBottom: 30,
   },
   radioOption: {
     flexDirection: 'row',
@@ -250,7 +284,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop:10,
+    marginTop: 10,
   },
   buttonText: {
     color: 'white',
@@ -259,4 +293,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyComponent;
+export default PlaceOrder;

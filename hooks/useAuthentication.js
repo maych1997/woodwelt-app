@@ -50,6 +50,7 @@ const useAuthentication = () => {
   const updateCustomerBilling = async (firstName,lastName,email,phone,postCode,address1,address2,state,city,country) => {
     try {
       const { data } = await updateCustomerBillingMutation({ variables: { firstName,lastName,email,phone,postCode,address1,address2,state,city,country } });
+      
       return data;
     } catch (error) {
       Alert.alert("Error", "Could not add item to cart.");

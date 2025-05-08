@@ -84,10 +84,10 @@ const Cart = ({navigation}) => {
         <SafeAreaView style={{flex: 1, width: '100%'}}>
           <ScrollView>
             <>
-              {dataCart?.cart?.contents?.nodes.map(item => {
-                console.log(item.key);
+              {dataCart?.cart?.contents?.nodes.map((item,index) => {
                 return (
                   <TouchableOpacity
+                  key={index}
                   onPress={()=>{
                     navigation.navigate('Home',{screen:'ProductDetails',params:{productDetails: item.product.node,route:'Cart'} })
                     // console.log(item);

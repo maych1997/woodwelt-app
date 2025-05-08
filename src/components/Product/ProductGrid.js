@@ -1,27 +1,76 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FlatList,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
+  Text,
+  View,
 } from 'react-native';
-import {Image} from 'react-native-animatable';
-import {FlatGrid} from 'react-native-super-grid';
+import { FlatGrid } from 'react-native-super-grid';
 import ProductItem from './ProductItem';
 
-const ProductGrid = ({details, onScroll}) => {
+const ProductGrid = ({ details, onScroll, onLoadMore }) => {
   const navigation = useNavigation();
+  const [data, setData] = useState(details?.nodes || []);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [noMoreData, setNoMoreData] = useState(false); // <-- NEW
+
+  const prevDetails = useRef();
+
+  useEffect(() => {
+    if (prevDetails.current !== details) {
+      setData(details?.nodes || []);
+    }
+    prevDetails.current = details;
+  }, [details]);
+
+  const handleEndReached = async () => {
+    if (loadingMore || noMoreData) return;
+
+    setLoadingMore(true);
+
+    if (onLoadMore) {
+      const moreProducts = await onLoadMore(); // Expect 10 new products
+      if (moreProducts?.length > 0) {
+        setData(prevData => [...prevData, ...moreProducts]);
+      } else {
+        setNoMoreData(true); // No more products to load
+      }
+    }
+
+    setLoadingMore(false);
+  };
+
+  const RenderFooter = () => {
+    if (loadingMore) {
+      return <ActivityIndicator style={{ margin: 10 }} size="large" color="#FA6E49" />;
+    }
+    if (noMoreData) {
+      return (
+        <View style={{ alignItems: 'center', padding: 10 }}>
+          <Text style={{ color: '#999' }}>No more products</Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <FlatGrid
-        onScroll={onScroll}
         itemDimension={130}
-        data={details?.nodes}
-        renderItem={item => {
-          return <ProductItem item={item} navigation={navigation} />;
+        data={data}
+        renderItem={( item ) => {
+          return(
+          <ProductItem item={item} navigation={navigation} />
+          )
         }}
+        onScroll={onScroll}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={<RenderFooter />}
       />
     </SafeAreaView>
   );

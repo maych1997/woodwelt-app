@@ -160,146 +160,150 @@ export const PRODUCTS = gql`
 
 export const FEATURED_PRODUCTS = gql`
   query GetProducts($productCount: Int!) {
-    products(where: {featured: true}, first: $productCount) {
-      found
-      nodes {
-        type
+  products(where: { featured: true }, first: $productCount) {
+    found
+    nodes {
+      type
+      name
+      ... on SimpleProduct {
+        databaseId
+        id
+        sku
         name
-        ... on SimpleProduct {
-          databaseId
-          id
-          sku
-          name
-          price(format: FORMATTED)
-          regularPrice
-          salePrice
-          onSale
-          description
-          image {
+        price(format: FORMATTED)
+        regularPrice
+        salePrice
+        onSale
+        description
+        image {
+          link
+        }
+        galleryImages(first: 10) {
+          nodes {
             link
           }
-          galleryImages(first: 100) {
-            nodes {
-              link
-            }
-          }
-          related {
-            nodes {
-              ... on SimpleProduct {
-                databaseId
-                id
-                sku
-                name
-                regularPrice
-                salePrice
-                price
-                onSale
-                description
-                image {
-                  link
-                }
-                galleryImages(first: 100) {
-                  nodes {
-                    link
-                  }
-                }
-              }
-            }
-          }
         }
-        ... on VariableProduct {
-          variations {
-            nodes {
+        related {
+          nodes {
+            ... on SimpleProduct {
               databaseId
               id
-              attributes {
-                nodes {
-                  id
-                  attributeId
-                  name
-                  value
-                  label
-                }
-              }
               name
+              price(format: FORMATTED)
+              image {
+                link
+              }
+            }
+            ... on VariableProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
+              image {
+                link
+              }
+            }
+            ... on ExternalProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
+              image {
+                link
+              }
+            }
+            ... on GroupProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
               image {
                 link
               }
             }
           }
-          attributes {
-            nodes {
-              options
-              scope
-              name
-              visible
-              label
-              variation
-            }
-          }
-          id
-          name
-          regularPrice
-          salePrice
-          price
-          onSale
-          description
-          image {
+        }
+      }
+      ... on VariableProduct {
+        id
+        name
+        regularPrice
+        salePrice
+        price
+        onSale
+        description
+        image {
+          link
+        }
+        galleryImages(first: 10) {
+          nodes {
             link
           }
-          galleryImages(first: 100) {
-            nodes {
+        }
+        attributes {
+          nodes {
+            name
+            label
+            options
+            variation
+            visible
+          }
+        }
+        variations(first: 20) {
+          nodes {
+            id
+            databaseId
+            name
+            image {
               link
             }
-          }
-          related {
-            nodes {
-              ... on VariableProduct {
-                variations {
-                  nodes {
-                    id
-                    databaseId
-                    attributes {
-                      nodes {
-                        id
-                        attributeId
-                        name
-                        value
-                        label
-                      }
-                    }
-                    name
-                    image {
-                      link
-                    }
-                  }
-                }
-                attributes {
-                  nodes {
-                    options
-                    scope
-                    name
-                    visible
-                    label
-                    variation
-                  }
-                }
+            attributes {
+              nodes {
                 id
-                sku
+                attributeId
                 name
-                regularPrice
-                salePrice
-                price
-                onSale
-                description
-                image {
-                  link
-                }
-                galleryImages(first: 100) {
-                  nodes {
-                    link
-                  }
-                }
+                value
+                label
+              }
+            }
+          }
+        }
+        related {
+          nodes {
+            ... on SimpleProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
+              image {
+                link
+              }
+            }
+            ... on VariableProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
+              image {
+                link
+              }
+            }
+            ... on ExternalProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
+              image {
+                link
+              }
+            }
+            ... on GroupProduct {
+              databaseId
+              id
+              name
+              price(format: FORMATTED)
+              image {
+                link
               }
             }
           }
@@ -307,6 +311,8 @@ export const FEATURED_PRODUCTS = gql`
       }
     }
   }
+}
+
 `;
 export const LATEST_PRODUCTS = gql`
   query GetProducts($productCount: Int!) {
@@ -1036,6 +1042,8 @@ export const GET_CART = gql`
 export const GET_PROFILE_DETAILS = gql`
   query getCustomer {
     customer {
+      id
+      databaseId
       availablePaymentMethods {
         id
         isDefault

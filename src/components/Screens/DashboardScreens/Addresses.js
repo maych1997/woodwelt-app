@@ -29,8 +29,8 @@ const Addresses = ({navigation, route}) => {
         }),
       );
     }
-  }, [route.params.billing,route.params.shipping]); // Add dependency to trigger when details update
-
+  }, [route.params.billing, route.params.shipping]); // Add dependency to trigger when details update
+  console.log('teadasfafasf', addresses);
   return (
     <SafeAreaView style={styles.container}>
       {/* Back Button */}
@@ -47,25 +47,54 @@ const Addresses = ({navigation, route}) => {
       <FlatList
         data={addresses}
         keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <TouchableOpacity onPress={()=>{
-            navigation.navigate('AddressForm',{addressType:item.title});
-          }}>
-            <Card style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Icon name="edit" size={20} color="#FA6E49" />
-              </View>
-              <Text style={styles.cardDetails}>
-                {item?.firstName} {item?.lastName}
-              </Text>
-              <Text style={styles.cardDetails}>{item?.phone}</Text>
-              <Text style={styles.cardDetails}>{item?.address1}</Text>
-              <Text style={styles.cardDetails}>{item?.city}</Text>
-              <Text style={styles.cardDetails}>{item?.country}</Text>
-            </Card>
-          </TouchableOpacity>
-        )}
+        renderItem={({item}) => {
+          return (
+            <>
+              {item?.firstName ||
+              item?.lastName ||
+              item?.phone ||
+              item?.address1 ||
+              item?.city ||
+              item?.country ? (
+                <TouchableOpacity>
+                  <Card style={styles.card}>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.cardTitle}>{item.title}</Text>
+                      <Icon name="edit" size={20} color="#FA6E49" />
+                    </View>
+
+                    {(item?.firstName || item?.lastName) && (
+                      <Text style={styles.cardDetails}>
+                        {item?.firstName} {item?.lastName}
+                      </Text>
+                    )}
+
+                    {item?.phone && (
+                      <Text style={styles.cardDetails}>{item.phone}</Text>
+                    )}
+                    {item?.address1 && (
+                      <Text style={styles.cardDetails}>{item.address1}</Text>
+                    )}
+                    {item?.city && (
+                      <Text style={styles.cardDetails}>{item.city}</Text>
+                    )}
+                    {item?.country && (
+                      <Text style={styles.cardDetails}>{item.country}</Text>
+                    )}
+                  </Card>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.emptyState}>
+                 <TouchableOpacity onPress={()=>{
+                  navigation.navigate('AddressForm',{addressType:item.title});
+                 }}>
+                    <Text>Add {item.title} Adrress</Text>
+                 </TouchableOpacity>
+                </View>
+              )}
+            </>
+          );
+        }}
       />
     </SafeAreaView>
   );
